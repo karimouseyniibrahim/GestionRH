@@ -1,4 +1,4 @@
-<table class="table table-striped table-hover" id="TableContrat">
+<table class="table table-striped table-hover" id="TablePointage">
 	<thead>
 		<tr>				 
                         <th>MATRICULE</th>
@@ -15,8 +15,8 @@
 	</thead>
 						  
 	<tbody>
-                <?php if(isset($CODE_ANAL)&&isset($CODE_SUPP)&&isset($DEBUTSEM)): 
-                        echo GetHtmlPointageManoeuvresByCode_Sup($CODE_ANAL,$CODE_SUPP,$DEBUTSEM);
+                <?php if(isset($DEBUTSEM)): 
+                        echo GetHtmlPointageManoeuvresByCode_Sup($DEBUTSEM);
                         ?>
     
                 <?php else: ?>

@@ -93,7 +93,7 @@ if(!function_exists('save_input_data')){
     }
 }
 
-
+/*
 if(!function_exists('liste_clients')){
     function liste_clients($limit_left,$limit_right){
         global $db;
@@ -102,7 +102,7 @@ if(!function_exists('liste_clients')){
         return $q->fetchAll(PDO::FETCH_OBJ);   
     }
 }
-
+*/
 if(!function_exists('ListePayr')){
     function ListePayr(){
         global $db;
@@ -171,7 +171,7 @@ if(!function_exists('getListeProgramByHebdomadaire')){
         global $db;
         $q=$db->prepare("SELECT  codact,codeanal,c.LIBLONG as CHERCHEUR,vc.LIBLONG as PROGRAM,DEBUTSEM,FINSEM,COMPTE FROM `maneouvres_heures`as m 
         INNER JOIN codeanalytique as c ON m.codact=c.codlib INNER JOIN program_name as vc on vc.codlib=m.codeanal 
-        where c.codtab=21 and m.statut=1  group by codact,codeanal,c.LIBLONG,vc.LIBLONG");     
+        where c.codtab=21 and m.statut=1  group by codact,codeanal,c.LIBLONG,vc.LIBLONG ORDER BY m.id");     
         $q->execute(); 
 
         return $q->fetchAll(PDO::FETCH_OBJ);   
@@ -323,8 +323,8 @@ if(!function_exists('ListeBulletinPaieManoeuvre')){
 if(!function_exists('ListePaieManoeuvreByHebdo')){
     function ListePaieManoeuvreByHebdo($sem1,$sem2){
         global $db;
-        $q=$db->prepare("SELECT p.nom,m.matriculev,sum(if(finsem='22/02/2023',netpayer,0)) as sem1,
-        sum(if(finsem='2023-03-01',netpayer,0)) as sem2 FROM `maneouvres_heures` as m 
+        $q=$db->prepare("SELECT p.nom,m.matriculev,sum(if(finsem=:s1,netpayer,0)) as sem1,
+        sum(if(finsem=:s2,netpayer,0)) as sem2 FROM `maneouvres_heures` as m 
         inner join personnelles_manoeuvres as p on p.matriculev=m.matriculev 
         where finsem=:s1 or finsem=:s2 group by p.nom,m.matriculev  order by m.matriculev");     
         $q->execute(array(":s1"=>$sem1,":s2"=>$sem2)); 
@@ -532,7 +532,7 @@ if(!function_exists('ListePayrRubriqueByMatricule')){
     }
 }
 
-
+/*
 if(!function_exists('LClients')){
     function LClients(){
         global $db;
@@ -543,6 +543,7 @@ if(!function_exists('LClients')){
         
     }
 }
+*/
 if(!function_exists('LChambres')){
     function LChambres(){
         global $db;
@@ -659,18 +660,38 @@ if(!function_exists('GetContratManoeuvresByCode_Sup')){
     }
 }
 
+if(!function_exists('GetEdit_Cheques')){
+    function GetEdit_Cheques(){
+        global $db;
+        $q=$db->prepare("SELECT  * FROM bon_reglement limit 0,900");     
+        $q->execute(); 
+        return $q->fetchAll(PDO::FETCH_OBJ);   
+    }
+}
+
+if(!function_exists('GetFournisseurs')){
+    function GetFournisseurs(){
+        global $db;
+        $q=$db->prepare("SELECT  * FROM fournisseurs ");     
+        $q->execute(); 
+        return $q->fetchAll(PDO::FETCH_OBJ);   
+    }
+}
+
 if(!function_exists('GetPointageManoeuvresByCode_Sup')){
-    function GetPointageManoeuvresByCode_Sup($code,$supp,$debutSem){
+    function GetPointageManoeuvresByCode_Sup($debutSem){
         global $db;
         $q=$db->prepare("SELECT m.matriculev as mt,retenue,m.prix_hor,debut_cont,fin_cont,code_anal,code_supp,m.nom,annee_nais,nr_cnss, h.id,norm,supp,feri,hrs_total,cfa_total,codeanal,debutsem,
         codact,finsem,JEU,JEU_SOIR,JEU_FERI,VEN,VEN_SOIR,VEN_FERI,SAM,SAM_SOIR,SAM_FERI,DIM,DIM_SOIR,DIM_FERI,m.compte,m.localite,
         LUN,LUN_SOIR,LUN_FERI,MAR,MAR_SOIR,MAR_FERI,MER,MER_SOIR,MER_FERI FROM `maneouvres_heures` AS h right join 
         (SELECT p.matriculev,debut_cont,fin_cont,code_anal,code_supp,prix_hor,nom,annee_nais,nr_cnss,compte,localite 
         FROM `manoeuvres` as m1 inner join personnelles_manoeuvres as p on m1.matriculev=p.matriculev) as m 
-        on h.matriculev=m.matriculev AND h.codact=m.code_supp and h.codeanal=code_anal and 	
-        DEBUTSEM=:debutSem where timestampdiff(DAY,:debutSem,str_to_date(`FIN_CONT`,'%d/%m/%Y'))>=0 and 
-        CODE_ANAL=:code and CODE_SUPP=:supp");     
-        $q->execute(array(":code"=>$code,":supp"=>$supp,":debutSem"=>$debutSem)); 
+        on h.matriculev=m.matriculev AND DEBUTSEM=:debutSem where timestampdiff(DAY,:debutSem,str_to_date(`FIN_CONT`,'%d/%m/%Y'))>=0 ");    
+        //and CODE_ANAL=:code and CODE_SUPP=:supp 
+        //h.codact=m.code_supp and h.codeanal=code_anal and 	
+       
+        $q->execute(array(":debutSem"=>$debutSem)); 
+        //":code"=>$code,":supp"=>$supp,
         return $q->fetchAll(PDO::FETCH_OBJ);   
     }
 }
@@ -703,7 +724,7 @@ if(!function_exists('GetPersonnels')){
         $q=$db->prepare("SELECT id,MATRICULEV,NOM,PRENOMS,NATIONAL,SITFAMIL,
         DIVISION,LIEUAFFEC,FONCTION,CODEMPLOI,SOUSDIVIS,DATEMBAUC
         FROM personnelles where statut like '%".$Request."%' ORDER BY MATRICULEV DESc ");     
-        $q->execute(array(":statut"=>$Request)); 
+        $q->execute(); //array(":statut"=>$Request)
         return $q->fetchAll(PDO::FETCH_OBJ);   
     }
 }
@@ -717,7 +738,7 @@ if(!function_exists('OnePersonnel')){
         return $q->fetch(PDO::FETCH_OBJ);          
     }
 }
-
+/*
 if(!function_exists('count_clients')){
     function count_clients(){
         global $db;
@@ -728,7 +749,7 @@ if(!function_exists('count_clients')){
         
     }
 }
-
+*/
 
 if(!function_exists('liste_facturations')){
     function liste_facturations($limit_left,$limit_right){
@@ -888,6 +909,16 @@ if(!function_exists('HebergementDate_Min_Max')){
     }
 }
 
+if(!function_exists('GetChequeByID')){
+    function GetChequeByID($id){
+        global $db;
+        $q=$db->prepare("SELECT f.name,b.* FROM bon_reglement as b inner join fournisseurs as f on b.CODE_FR=f.code WHERE id=:id ");     
+        $q->execute(array(":id"=>$id)); 
+        return $q->fetch(PDO::FETCH_OBJ);
+    }
+}
+
+/*
 if(!function_exists('ClientHebergerInDate')){
     function ClientHebergerInDate($dateArrive,$DateDepart){
         global $db;
@@ -936,7 +967,7 @@ if(!function_exists('GetConsommationByHebergement')){
         return $res;
     }
 }
-
+*/
 
 if(!function_exists('GetHtmlRubriques')){
     function GetHtmlRubriques($type){
@@ -1120,7 +1151,7 @@ if(!function_exists('GetHtmlPayR')){
         return $res;
     }
 }
-
+/*
 if(!function_exists('PrintDataHebergement')){
     function PrintDataHebergement($IDHebergement){
         global $db;
@@ -1137,7 +1168,7 @@ if(!function_exists('PrintDataHebergement')){
        return $a->fetchAll(PDO::FETCH_OBJ);
     }
 }
-
+*/
 
 
 if(!function_exists('GetHtmlContratByPersonnel')){
@@ -1197,11 +1228,41 @@ if(!function_exists('GetHtmlContratManoeuvresByCode_Sup')){
         return $res;
     }
 }
+
+
+if(!function_exists('GetHtmlEdit_Cheque')){
+    function GetHtmlEdit_Cheque(){
+        global $db;
+        $contats=GetEdit_Cheques();
+        $res='';
+        foreach($contats as $c):
+            $res=$res.'
+                <tr>
+                <th>'. utf8_encode($c->DATE_BDR).'</th>
+                <th>'.utf8_encode($c->LIBELLES) .'</th>
+                <th>'.$c->CODE_FR.'</th>  
+                <th>'.$c->MOTIF_BDR.'</th>  
+                <th>'.$c->MONTANT_TTC.'</th> 
+                <th>'.$c->CHEQUE.'</th> 
+                <th>
+                    <a class="edit" onclick="editContrat('.$c->ID.')">
+                        <i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i>
+                    </a>
+                    <a class="delete" data-toggle="modal" onclick="openmodaldelete('.$c->ID .')">
+                        <i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i>
+                    </a>
+                </th>
+            </tr>'	;
+        endforeach;
+        
+        return $res;
+    }
+}
 //GetPointageManoeuvresByCode_Sup
 if(!function_exists('GetHtmlPointageManoeuvresByCode_Sup')){
-    function GetHtmlPointageManoeuvresByCode_Sup($code,$supp,$debutSem){
+    function GetHtmlPointageManoeuvresByCode_Sup($debutSem){
         global $db;
-        $contats=GetPointageManoeuvresByCode_Sup($code,$supp,$debutSem);
+        $contats=GetPointageManoeuvresByCode_Sup($debutSem);
         $res='';
         foreach($contats as $c):
             $res=$res.'
