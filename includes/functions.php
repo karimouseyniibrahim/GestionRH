@@ -650,12 +650,43 @@ if(!function_exists('GetProgrammes')){
     }
 }
 
+if(!function_exists('GetGPCodeByType')){
+    function GetGPCodeByType($type){
+        global $db;
+        $q=$db->prepare("SELECT * FROM `gp_code` where type=:type");     
+        $q->execute(array(":type"=>$type)); 
+        return $q->fetchAll(PDO::FETCH_OBJ);   
+    }
+}
+
+if(!function_exists('GetGPPlanComptable')){
+    function GetGPPlanComptable(){
+        global $db;
+        $q=$db->prepare("SELECT * FROM `gp_plan_comptable` ");     
+        $q->execute(); 
+        return $q->fetchAll(PDO::FETCH_OBJ);   
+    }
+}
+
 if(!function_exists('GetContratManoeuvresByCode_Sup')){
     function GetContratManoeuvresByCode_Sup($code,$supp){
         global $db;
+        $previous_week = strtotime("-1 week +3 day");
+        $start_week = strtotime("last thursday midnight",$previous_week);
+        $start_week = date("Y-m-d",$start_week);
         $q=$db->prepare("SELECT  m.*,p.NOM,p.DATE_NAISS FROM `manoeuvres` as m inner join 
-        personnelles_manoeuvres as p on p.matriculev=m.matriculev where code_anal=:code and code_supp=:supp and statut=1");     
-        $q->execute(array(":code"=>$code,":supp"=>$supp)); 
+        personnelles_manoeuvres as p on p.matriculev=m.matriculev where code_anal=:code and code_supp=:supp and timestampdiff(DAY,:DSem,str_to_date(`FIN_CONT`,'%d/%m/%Y'))>=0 ");     
+        $q->execute(array(":code"=>$code,":supp"=>$supp,":DSem"=>$start_week)); 
+        return $q->fetchAll(PDO::FETCH_OBJ);   
+
+    }
+}
+
+if(!function_exists('GetContratManoeuvresByMatricule')){
+    function GetContratManoeuvresByMatricule($matricule){
+        global $db;
+        $q=$db->prepare("SELECT * FROM `manoeuvres`  where matriculev=:matricule");     
+        $q->execute(array(":matricule"=>$matricule)); 
         return $q->fetchAll(PDO::FETCH_OBJ);   
     }
 }
@@ -918,6 +949,14 @@ if(!function_exists('GetChequeByID')){
     }
 }
 
+if(!function_exists('GetVirementPonctuelsByID')){
+    function GetVirementPonctuelsByID($id){
+        global $db;
+        $q=$db->prepare("SELECT * FROM virement_ponctuel  WHERE id=:id ");     
+        $q->execute(array(":id"=>$id)); 
+        return $q->fetch(PDO::FETCH_OBJ);
+    }
+}
 /*
 if(!function_exists('ClientHebergerInDate')){
     function ClientHebergerInDate($dateArrive,$DateDepart){
@@ -1229,6 +1268,28 @@ if(!function_exists('GetHtmlContratManoeuvresByCode_Sup')){
     }
 }
 
+if(!function_exists('GetHtmlContratManoeuvresByMatricule')){
+    function GetHtmlContratManoeuvresByMatricule($matricule){
+        global $db;
+        $contats=GetContratManoeuvresByMatricule($matricule);
+        $res='';
+        foreach($contats as $c):
+            $res=$res.'
+                <tr>
+                <th>'. $c->CODE_ANAL.'</th>
+                <th>'.utf8_encode($c->CODE_SUPP) .'</th>
+                <th>'.$c->NUME_LET.'</th>  
+                <th>'.$c->DEBUT_CONT.'</th>  
+                <th>'.$c->FIN_CONT.'</th> 
+                <th>'.$c->LOCALITE.'</th> 
+                <th>'.$c->PRIX_HOR.'</th> 
+            </tr>'	;
+        endforeach;
+        
+        return $res;
+    }
+}
+
 
 if(!function_exists('GetHtmlEdit_Cheque')){
     function GetHtmlEdit_Cheque(){
@@ -1385,6 +1446,16 @@ if(!function_exists('MenuSideBarNiveau1')){
         global $db;
         $q=$db->prepare("SELECT * FROM `rolesmenus` as rm inner join menu as m on rm.menu=m.id 
         where position=2 and role=:role and parent=:parent");     
+        $q->execute(array(":role"=>$myrole,":parent"=>$parent)); 
+        return $q->fetchAll(PDO::FETCH_OBJ);   
+    }
+}
+
+if(!function_exists('MenuSideBarNiveau2')){
+    function MenuSideBarNiveau2($myrole,$parent){
+        global $db;
+        $q=$db->prepare("SELECT * FROM `rolesmenus` as rm inner join menu as m on rm.menu=m.id 
+        where position=3 and role=:role and parent=:parent");     
         $q->execute(array(":role"=>$myrole,":parent"=>$parent)); 
         return $q->fetchAll(PDO::FETCH_OBJ);   
     }

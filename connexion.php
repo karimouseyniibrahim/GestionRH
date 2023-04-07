@@ -13,7 +13,7 @@ if(isset($_POST['btn_connexion'])){
     if(not_empty(array('matricule','pwd'))){
   
       extract($_POST);
-
+      
       $q=$db->prepare("select * from user WHERE matricule = :matricule AND pwd = :password");
   
       $q->execute(array(':matricule' => $matricule,

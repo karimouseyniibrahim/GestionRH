@@ -3,6 +3,7 @@ session_start();
 include("filters/auth_filter.php");
 require("config/db.php");
 require("includes/functions.php");
+require("includes/constants.php");
 $title="Payroll";
 
 

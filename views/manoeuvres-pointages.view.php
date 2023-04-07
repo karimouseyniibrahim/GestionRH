@@ -15,6 +15,9 @@
 						    
 							 <div class="col-sm-12 p-0 flex justify-content-lg-end justify-content-center">
                                
+                               <a  class="btn btn-success"  href="print/bielletage-manoeuvre.php" target="_blank">
+							        <span>Bielletage</span>
+							   </a>
 
                                <a  class="btn btn-success"  href="print/salaire-hebdomadaire.php" target="_blank">
 							        <span>Sal. Hebdomadaire</span>

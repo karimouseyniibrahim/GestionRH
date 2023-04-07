@@ -23,7 +23,31 @@
 		  });
 		  
 	   });
-
+//TablePersManoeuvres
+$(document).ready(function () {
+         $('#TablePersManoeuvres').DataTable(
+            {
+		      	'processing': true,
+		      	'serverSide': true,
+		      	'serverMethod': 'post',
+		      	'ajax': {
+		          	'url':'html/EditionManoeuvresPersonnelDatatable.php'
+		      	},
+		      	'columns': [
+                  { data: 'MATRICULEV' },
+                  { data: 'NOM' },
+		         	{ data: 'DATE_NAISS' },
+		         	{ data: 'LIEUNAISS' },
+		         	{ data: 'NR_CNSS' },
+		         	{ data: 'CARTE_NAT' },
+                  { data: 'CARTE_ISC' },
+                  
+                  { data: "action", "defaultContent": '' }
+		      	]
+            }
+         );
+      });
+      
       //TableEditcheque
       $(document).ready(function () {
          $('#TableEditcheque').DataTable(
@@ -47,7 +71,50 @@
          );
       });
 
+      $(document).ready(function () {
+         $('#TableVirement').DataTable(
+            {
+		      	'processing': true,
+		      	'serverSide': true,
+		      	'serverMethod': 'post',
+		      	'ajax': {
+		          	'url':'data/VirementDatatable.php'
+		      	},
+		      	'columns': [
+                  { data: 'datecreat' },
+                  { data: 'nombenf' },
+		         	{ data: 'adresseBeneficiaire' },
+		         	{ data: 'banqueBenf' },
+		         	{ data: 'codeswift' },
+		         	{ data: 'numcomptebenf' },
+                  { data: "action", "defaultContent": '' }
+		      	]
+            }
+         );
+      });
 
+      $(document).ready(function () {
+         $('#TableVersement').DataTable(
+            {
+		      	'processing': true,
+		      	'serverSide': true,
+		      	'serverMethod': 'post',
+		      	'ajax': {
+		          	'url':'data/VersementDatatable.php'
+		      	},
+		      	'columns': [
+                  { data: 'datecreate' },
+                  { data: 'nomBenf' },
+                  { data: 'deposant' },
+		         	{ data: 'montant' },
+                  { data: 'numcompte' },
+                  { data: "action", "defaultContent": '' }
+		      	]
+            }
+         );
+      });
+
+//TableVirement
       $(document).ready(function () {
          $('#TablePersonnels').DataTable();
       });
